@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %} Главная {% endblock %}
+
+{% block post_title %} {{ title }} {% endblock %}
+
+{% block content %}
+
+<div class="date">Дата написания статьи: {{ date }} </div>
+<div class="author">Автор: <a href="{{ author[0] }}"> {{ author[1] }} </a></div>
+
+{{ body }}
+
+{% for at in att %}
+<p>
+  <img width="800" src="{{ at.url }}" alt>
+</p>
+{% endfor %}
+
+Теги:
+<ul>
+{% for tag in tags %}
+<li><a href="/tag/{{ tag.name }}">{{ tag.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,19 @@
+body {
+    background-color: lightblue;
+    margin: 25px 50px 75px
+}
+
+h1 {
+    display: inline;
+}
+
+.date {
+    color: grey;
+    style: italic;
+}
+
+
+#content {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}

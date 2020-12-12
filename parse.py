@@ -2,9 +2,10 @@ import json
 import sqlite3
 import re
 from peewee import *
+from db import *
 
 def convert_json_to_sqlite(posts):
-    "Перевод данных из JSON, который получен из vk, в SQLite."    
+    "Перевод данных из JSON, который получен из vk, в SQLite."
     # Создаем переменную, куда будем класть очищенные данные
     clean_posts = []
 
@@ -13,10 +14,11 @@ def convert_json_to_sqlite(posts):
     for post in posts:
         if is_reposted(post):
             post = nativify(post)
-            
+
         clean_post = clearify(post)
         clean_posts.append(clean_post)
 
+    save_data(clean_posts)
     return clean_posts
 
 def is_reposted(post: dict) -> bool:
@@ -65,28 +67,8 @@ def select_best(sizes: list) -> str:
             if size['type'] == types[i]:
                 return size
 
-db = SqliteDatabase('posts.db')
-
-class BaseModel(Model):
-    class Meta:
-        database = db
-
-class Post(BaseModel):
-    id = AutoField(unique=True)
-    date = DateField()
-    owner_id = IntegerField()
-    vk_id = IntegerField()
-    title = CharField()
-    text = TextField()
-
-class Attachments(BaseModel):
-    id = AutoField(unique=True)
-    post_id = ForeignKeyField(Post, backref='attachments')
-    type = CharField()
-    url = CharField()
-
 def title_maker(text: str) -> str:
-    title = re.sub(r"#\w+\s", "", text)
+    title = re.sub(tag_regex, "", text)
     if len(title) > 30:
         title = title[:30]
         title += "..."
@@ -101,24 +83,26 @@ def save_data(posts):
             title=title_maker(post['text']),
             text=post['text'])
         posty.save()
+        for tag in re.findall(tag_regex, post['text']):
+            tag = re.sub("#", "", tag).strip()
+            taggy = Tags(vk_id=post['id'], name=tag)
+            taggy.save()
         if post['attachments'] != []:
             for at in post['attachments']:
-                att = Attachments(post_id=post['id'], type="photo", url=at)
+                att = Attachments(vk_id=post['id'], type="photo", url=at)
                 att.save()
 
 
 if __name__ == "__main__":
-    db.connect()
-    db.create_tables([Post, Attachments])
+    tag_regex = r"#\w+\s"
+    database.connect()
+    database.create_tables([Post, Attachments, Tags])
     ## Подготавливаем данные
-    
+
     # Читаем json
     with open("dest_file.json") as f:
         dirty_posts = json.load(f)
-        
+
     # Получает только посты
     posts = dirty_posts['items']
-    a = convert_json_to_sqlite(posts)
-    save_data(a)
-
-        
+    convert_json_to_sqlite(posts)
