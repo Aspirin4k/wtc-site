@@ -13,9 +13,14 @@ def index():
 def authorizify(id: int) -> str:
     authors = {
         -144705371: ["https://vk.com/ryukishi07", "ORIGINAL"],
-        -81413361: ["https://vk.com/id70251320", "Алексей Кушелов"]
+        -81413361: ["https://vk.com/id70251320", "Алексей Кушелов"],
+        -89327841: ["https://vk.com/xx_gensokyo_xx", "EXTREME RUSSIAN FANDOM FOR TOUHOU"],
+        -192241227:["https://vk.com/clocktowerzines", "Clock Tower Zines | TYPE-MOON zine | WTCZINE"]
     }
-    return authors[id]
+    if id in authors:
+        return authors[id]
+    else:
+        ["https://vk.com/ryukishi07", "АВТОР ПОКА НЕ НАЙДЕН"]
 
 @app.route('/post/<int:post_id>')
 def get_post(post_id):
