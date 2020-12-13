@@ -22,7 +22,7 @@ def rss():
     cte = Post.select().order_by(Post.date.desc()).limit(20).cte('qq')
     q = Post.select(Post.alias('qq')).order_by(cte.c.date.asc()).with_cte(cte).from_(cte)
     for article in q:
-        att = Attachments.select().where(Attachments.vk_id==post_id)
+        att = Attachments.select().where(Attachments.vk_id==article.vk_id)
         res = ""
         for img in att:
             res += img.url + " "
