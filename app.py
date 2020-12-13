@@ -1,7 +1,10 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, make_response, request
+from urllib.parse import urljoin
+from feedgen.feed import FeedGenerator
 from peewee import *
 from db import *
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -9,6 +12,32 @@ app = Flask(__name__)
 def index():
     titles = Post.select()
     return render_template('index.html', titles=titles)
+
+@app.route('/feed.xml')
+def rss():
+    fg = FeedGenerator()
+    fg.title('Посты в th07-expansion.ru')
+    fg.description('Посты в th07-expansion.ru')
+    fg.link(href=request.url)
+    cte = Post.select().order_by(Post.date.desc()).limit(20).cte('qq')
+    q = Post.select(Post.alias('qq')).order_by(cte.c.date.asc()).with_cte(cte).from_(cte)
+    for article in q:
+        fe = fg.add_entry()
+        fe.title(article.title)
+        fe.link(href=f"{request.url_root}post/{article.vk_id}")
+        fe.content(article.text)
+        fe.description("Описание")
+        fe.guid(str(article.vk_id), permalink=False) # Or: fe.guid(article.url, permalink=True)
+        fe.author(name=authorizify(article.owner_id))
+        fe.pubDate(datetime.fromtimestamp(int(article.date)).replace(tzinfo=pytz.UTC))
+
+    response = make_response(fg.rss_str())
+    response.headers.set('Content-Type', 'application/rss+xml')
+
+    return response
+
+def get_abs_url(url):
+    return urljoin(request.url_root, url)
 
 def authorizify(id: int) -> str:
     authors = {
@@ -20,7 +49,7 @@ def authorizify(id: int) -> str:
     if id in authors:
         return authors[id]
     else:
-        ["https://vk.com/ryukishi07", "АВТОР ПОКА НЕ НАЙДЕН"]
+        return ["https://vk.com/ryukishi07", "АВТОР ПОКА НЕ НАЙДЕН"]
 
 @app.route('/post/<int:post_id>')
 def get_post(post_id):
