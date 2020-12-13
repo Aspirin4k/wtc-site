@@ -69,8 +69,8 @@ def select_best(sizes: list) -> str:
 
 def title_maker(text: str) -> str:
     title = re.sub(tag_regex, "", text)
-    if len(title) > 30:
-        title = title[:30]
+    if len(title) > 60:
+        title = title[:60]
         title += "..."
     return title
 
