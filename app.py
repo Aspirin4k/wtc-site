@@ -25,7 +25,7 @@ def rss():
         att = Attachments.select().where(Attachments.vk_id==article.vk_id)
         res = ""
         for img in att:
-            res += img.url + " "
+            res += f"<img src={img.url}>"
         fe = fg.add_entry()
         fe.title(article.title)
         fe.link(href=f"https://www.whentheycry.xyz/post/{article.vk_id}")
