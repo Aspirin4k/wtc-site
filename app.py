@@ -29,7 +29,7 @@ def rss():
         fe = fg.add_entry()
         fe.title(article.title)
         fe.link(href=f"https://www.whentheycry.xyz/post/{article.vk_id}")
-        fe.content(f"{article.text} {res}")
+        fe.content(article.text + " " + res)
         fe.description("Описание")
         fe.guid(str(article.vk_id), permalink=False) # Or: fe.guid(article.url, permalink=True)
         fe.author(name=authorizify(article.owner_id))
