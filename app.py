@@ -22,10 +22,14 @@ def rss():
     cte = Post.select().order_by(Post.date.desc()).limit(20).cte('qq')
     q = Post.select(Post.alias('qq')).order_by(cte.c.date.asc()).with_cte(cte).from_(cte)
     for article in q:
+        att = Attachments.select().where(Attachments.vk_id==post_id)
+        res = ""
+        for img in att:
+            res += img.url + " "
         fe = fg.add_entry()
         fe.title(article.title)
         fe.link(href=f"https://www.whentheycry.xyz/post/{article.vk_id}")
-        fe.content(article.text)
+        fe.content(f"{article.text} {res}")
         fe.description("Описание")
         fe.guid(str(article.vk_id), permalink=False) # Or: fe.guid(article.url, permalink=True)
         fe.author(name=authorizify(article.owner_id))
