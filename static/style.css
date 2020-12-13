@@ -1,6 +1,6 @@
 body {
-    background-color: lightblue;
-    margin: 25px 50px 75px
+    background-color: white;
+    margin: 25px 150px 75px
 }
 
 h1 {
@@ -12,6 +12,18 @@ h1 {
     style: italic;
 }
 
+.title-post {
+    margin: 2px;
+}
+
+.page-ref {
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.pages {
+    margin: 10px;
+}
 
 #content {
     margin-top: 20px;

@@ -5,13 +5,21 @@ from peewee import *
 from db import *
 from datetime import datetime
 import pytz
+from math import ceil
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
+    return pager(0)
+
+@app.route('/page/<int:page>')
+def pager(page):
     titles = Post.select()
-    return render_template('index.html', titles=titles)
+    displayed_titles = Post.select().limit(30).offset(page*30)
+    return render_template('index.html',
+                           number_of_pages=ceil(len(titles)/30),
+                           displayed_titles=displayed_titles)
 
 @app.route('/feed.xml')
 def rss():

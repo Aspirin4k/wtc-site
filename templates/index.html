@@ -1,7 +1,26 @@
 {% extends "base.html" %}
 {% block title %} Главная {% endblock %}
 {% block content %}
-    {% for title in titles %}
-    <p> <a href="/post/{{ title.vk_id }}"> {{ title.title }} </a> </p>
-    {% endfor %}
+
+СТРАНИЦЫ:
+<div class="pages">
+{% for i in range(number_of_pages) %}
+<span class="page-ref">
+  <a href="/page/{{ i }}">
+    {{ i }}
+  </a>
+</span>
+{% endfor %}
+</div>
+
+{% for title in displayed_titles %}
+
+<div class="title-post">
+  <a href="/post/{{ title.vk_id }}">
+    {{ title.title }}
+  </a>
+</div>
+{% endfor %}
+
+
 {% endblock %}

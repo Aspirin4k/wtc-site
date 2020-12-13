@@ -3,6 +3,10 @@
   <head>
     {% block head %}
     <meta charset='UTF-8'>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>{% block title %}{% endblock %} - Русскоязычный сайт посвящённый творчеству Рюкиси07</title>
     {% endblock %}
@@ -21,7 +25,11 @@
 
     <div id="footer">
       {% block footer %}
-      &copy; Все права защищены СНГ сообществом ценителей работ Рюкиси07
+      &copy; Все права защищены СНГ сообществом ценителей работ
+      Рюкиси07
+      <p>
+	Читать посты в формате <a href="/feed.xml"> RSS </a>
+      </p>
       {% endblock %}
     </div>
 
