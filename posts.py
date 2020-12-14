@@ -9,6 +9,6 @@ def main():
     posts = tools.get_all('wall.get', 1, {'domain': 'ryukishi07'}, negative_offset=False)
     with open('dest_file.json', 'w', encoding='utf8') as f:
         json.dump(posts, f, indent=4, sort_keys=True, ensure_ascii=False)
-        
+
 if __name__ == "__main__":
     main()
