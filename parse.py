@@ -76,12 +76,13 @@ def title_maker(text: str) -> str:
 
 def save_data(posts):
     for post in posts:
+        html_text = re.sub(tag_regex, "", post['text'])
         posty = Post(
             owner_id=post['owner_id'],
             vk_id=post['id'],
             date=post['date'],
-            title=title_maker(post['text']),
-            text=post['text'])
+            title=title_maker(html_text),
+            text=html_text)
         posty.save()
         for tag in re.findall(tag_regex, post['text']):
             tag = re.sub("#", "", tag).strip()

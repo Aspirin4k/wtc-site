@@ -17,7 +17,7 @@
 
 <div class="title-post">
   <a href="/post/{{ title.vk_id }}">
-    {{ title.title }}
+    {{ title.title | safe }}
   </a>
 </div>
 {% endfor %}

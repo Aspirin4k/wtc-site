@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %} Главная {% endblock %}
 
-{% block post_title %} {{ title }} {% endblock %}
+{% block post_title %} {{ title | safe }} {% endblock %}
 
 {% block content %}
 
 <div class="date">Дата написания статьи: {{ date }} </div>
 <div class="author">Автор: <a href="{{ author[0] }}"> {{ author[1] }} </a></div>
 
-{{ body }}
+{{ body | markdown }}
 
 {% for at in att %}
 <p>

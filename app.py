@@ -6,8 +6,11 @@ from db import *
 from datetime import datetime
 import pytz
 from math import ceil
+from flaskext.markdown import Markdown
+import markdown
 
 app = Flask(__name__)
+Markdown(app)
 
 @app.route('/')
 def index():
@@ -37,7 +40,7 @@ def rss():
         fe = fg.add_entry()
         fe.title(article.title)
         fe.link(href=f"https://www.whentheycry.xyz/post/{article.vk_id}")
-        fe.content(article.text + " " + res)
+        fe.content(markdown.markdown(article.text) + " " + res)
         fe.description("Описание")
         fe.guid(str(article.vk_id), permalink=False) # Or: fe.guid(article.url, permalink=True)
         fe.author(name=authorizify(article.owner_id))
