@@ -1,26 +1,20 @@
-{% extends "base.html" %}
-{% block title %} Главная {% endblock %}
-{% block content %}
+<!doctype html>
+<html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
 
-СТРАНИЦЫ:
-<div class="pages">
-{% for i in range(number_of_pages) %}
-<span class="page-ref">
-  <a href="/page/{{ i }}">
-    {{ i }}
-  </a>
-</span>
-{% endfor %}
-</div>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>Главная - Русскоязычный сайт посвящённый творчеству Рюкиси07</title>
+    </head>
 
-{% for title in displayed_titles %}
-
-<div class="title-post">
-  <a href="/post/{{ title.vk_id }}">
-    {{ title.title | safe }}
-  </a>
-</div>
-{% endfor %}
-
-
-{% endblock %}
+    <body>
+        <div id="application"></div>
+        <script>
+          var serverPayload = {titles: {{ payload | tojson }}, titles_count: {{ number_of_pages }}};
+        </script>
+        <script type="text/javascript" src="{{ url_for('static', filename='app/build.js') }}"></script>
+    </body>
+</html>

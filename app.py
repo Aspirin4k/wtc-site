@@ -2,6 +2,7 @@ from flask import Flask, render_template, make_response, request
 from urllib.parse import urljoin
 from feedgen.feed import FeedGenerator
 from peewee import *
+from playhouse.shortcuts import model_to_dict
 from db import *
 from datetime import datetime
 import pytz
@@ -18,11 +19,26 @@ def index():
 
 @app.route('/page/<int:page>')
 def pager(page):
-    titles = Post.select()
-    displayed_titles = Post.select().limit(30).offset(page*30)
+    pageSize = 15
+
+    titles_count = Post.select().count()
+
+    first_attachment = (Attachments
+                       .select(Attachments.vk_id, Attachments.url)
+                       .group_by(Attachments.vk_id)
+                       .alias('first_attachment'))
+    join_predicate = (first_attachment.c.vk_id == Post.vk_id)
+    displayed_titles = (Post
+                        .select(Post, first_attachment.c.url.alias('url'))
+                        .join(first_attachment, JOIN.LEFT_OUTER, on=join_predicate)
+                        .limit(pageSize)
+                        .offset(page*pageSize)
+                        .namedtuples()
+                        .dicts())
+
     return render_template('index.html',
-                           number_of_pages=ceil(len(titles)/30),
-                           displayed_titles=displayed_titles)
+                           number_of_pages=ceil(titles_count/pageSize),
+                           payload=[displayed_title for displayed_title in displayed_titles])
 
 @app.route('/feed.xml')
 def rss():
@@ -97,5 +113,6 @@ def get_tag(tag):
 SELECT tags.vk_id, post.title
 FROM tags
 inner join post on tags.vk_id = post.vk_id
+left join (SELECT a.vk_id, a.url FROM attachments a GROUP BY a.vk_id) on a.vk_id = post.vk_id
 where tags.name = "#Higurashi "
 '''
