@@ -1,4 +1,4 @@
-from flask import Flask, render_template, make_response, request
+from flask import Flask, render_template, make_response, request, jsonify
 from urllib.parse import urljoin
 from feedgen.feed import FeedGenerator
 from peewee import *
@@ -36,9 +36,9 @@ def pager(page):
                         .namedtuples()
                         .dicts())
 
-    return render_template('index.html',
-                           number_of_pages=ceil(titles_count/pageSize),
-                           payload=[displayed_title for displayed_title in displayed_titles])
+    response = jsonify(dict(number_of_pages=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
+    response.headers.set('Content-Type', 'application/json')
+    return response
 
 @app.route('/feed.xml')
 def rss():

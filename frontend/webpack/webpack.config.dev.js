@@ -1,32 +1,21 @@
 const path = require('path');
 
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 module.exports = {
     entry: path.resolve(__dirname, '../src/index.js'),
     output: {
         filename: 'build.js',
-        path: path.resolve(__dirname, '../../static/app'),
+        path: path.resolve(__dirname, '../dist-dev/static'),
+        publicPath: '/'
     },
     resolve: {
         extensions: ['*', '.js', '.jsx']
     },
     mode: 'development',
     devtool: 'inline-source-map',
-    devServer: {
-        port: 5015,
-        writeToDisk: true,
-        open: true,
-        proxy: {
-            '/': {
-                target: 'http://localhost:5000'
-            }
-        }
-    },
     plugins: [
-        new CleanWebpackPlugin({
-            verbose: true
-        }),
+        new WebpackManifestPlugin()
     ],
     module: {
         rules: [

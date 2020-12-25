@@ -1,24 +1,33 @@
+const CopyPlugin = require("copy-webpack-plugin");
 const path = require('path');
-
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
+const nodeExternals = require('webpack-node-externals');
+const { DefinePlugin } = require('webpack');
 
 module.exports = {
-    entry: [path.resolve(__dirname, '../src/index.js')],
+    entry: path.resolve(__dirname, '../server/index.js'),
+    target: 'node',
+    node: {
+        __filename: false,
+        __dirname: false
+    },
     output: {
-        filename: '[name].[contenthash].js',
-        path: path.resolve(__dirname, '../dist/static'),
-        publicPath: '/'
+        filename: 'server.js',
+        path: path.resolve(__dirname, '../dist'),
     },
     resolve: {
         extensions: ['*', '.js', '.jsx']
     },
+    externals: [nodeExternals()],
     mode: 'production',
     plugins: [
-        new CleanWebpackPlugin({
-            verbose: true
+        new DefinePlugin({
+            DEV: false
         }),
-        new WebpackManifestPlugin()
+        new CopyPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, '../server/view'), to: 'views' }
+            ]
+        })
     ],
     module: {
         rules: [
