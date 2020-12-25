@@ -1,5 +1,6 @@
 import React from 'react';
 import express from 'express';
+import favicon from 'serve-favicon';
 import fs from 'fs';
 import path from 'path';
 import { Proxy } from 'axios-express-proxy';
@@ -14,6 +15,7 @@ const port = config.port;
 
 app.set('view engine', 'ejs');
 app.set('views', path.resolve(__dirname, 'views'));
+app.use(favicon(path.join(__dirname, 'static/icon/favicon.ico')))
 app.use(express.static(path.resolve(__dirname, 'static')));
 
 if (DEV) {
@@ -45,9 +47,11 @@ app.get(['/', '/page/:num'], (req, res) => {
         }
 
         const { data } = response;
-        const { titles, number_of_pages } = data;
+        const { titles, titles_count } = data;
         const content = renderToString(<App payload={data} />);
-        return res.render('index', {content, titles, number_of_pages, manifest});
+        return res.render('index', {content, titles, titles_count, manifest});
+    }).catch((error) => {
+        return res.send(error);
     })
 });
 app.get('*', (req, res) => {

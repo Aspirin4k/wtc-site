@@ -1,5 +1,7 @@
 const path = require('path');
 
+const CopyPlugin = require("copy-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 module.exports = {
@@ -15,7 +17,13 @@ module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
     plugins: [
-        new WebpackManifestPlugin()
+        new WebpackManifestPlugin(),
+        new MiniCssExtractPlugin(),
+        new CopyPlugin({
+            patterns: [
+                { from: path.resolve(__dirname, '../assets'), to: ''}
+            ]
+        })
     ],
     module: {
         rules: [
@@ -29,7 +37,7 @@ module.exports = {
             {
                 test: /\.s[ac]ss$/i,
                 use: [
-                    "style-loader",
+                    MiniCssExtractPlugin.loader,
                     "css-loader",
                     "sass-loader",
                 ],

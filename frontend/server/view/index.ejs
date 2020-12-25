@@ -6,13 +6,14 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
 
+    <link rel="stylesheet" href="<%= manifest['main.css'] %>">
     <title>Главная - Русскоязычный сайт посвящённый творчеству Рюкиси07</title>
 </head>
 
 <body>
 <div id="application"><%- content %></div>
 <script>
-    var serverPayload = {titles: <%- JSON.stringify(titles) %>, titles_count: <%- JSON.stringify(number_of_pages)%> };
+    var serverPayload = {titles: <%- JSON.stringify(titles) %>, titles_count: <%- JSON.stringify(titles_count)%> };
 </script>
 <script type="text/javascript" src="<%= manifest['main.js'] %>"></script>
 </body>

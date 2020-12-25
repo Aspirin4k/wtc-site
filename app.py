@@ -36,7 +36,7 @@ def pager(page):
                         .namedtuples()
                         .dicts())
 
-    response = jsonify(dict(number_of_pages=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
+    response = jsonify(dict(titles_count=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
     response.headers.set('Content-Type', 'application/json')
     return response
 
