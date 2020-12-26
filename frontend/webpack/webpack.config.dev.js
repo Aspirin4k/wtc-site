@@ -15,7 +15,7 @@ module.exports = {
         extensions: ['*', '.js', '.jsx']
     },
     mode: 'development',
-    devtool: 'inline-source-map',
+    devtool: 'eval-source-map',
     plugins: [
         new WebpackManifestPlugin(),
         new MiniCssExtractPlugin(),

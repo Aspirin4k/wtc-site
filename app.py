@@ -36,8 +36,9 @@ def pager(page):
                         .namedtuples()
                         .dicts())
 
-    response = jsonify(dict(titles_count=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
+    response = jsonify(dict(pages_count=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
     response.headers.set('Content-Type', 'application/json')
+    response.headers.set('Access-Control-Allow-Origin', '*')
     return response
 
 @app.route('/feed.xml')
@@ -91,15 +92,14 @@ def get_post(post_id):
             .utcfromtimestamp(query.date)
             .strftime('%Y-%m-%d %H:%M:%S'))
     author = authorizify(query.owner_id)
-    tags = Tags.select().where(Tags.vk_id==post_id)
-    att = Attachments.select().where(Attachments.vk_id==post_id)
-    return render_template('post.html',
-                           title=title,
-                           date=date,
-                           author=author,
-                           body=body,
-                           tags=tags,
-                           att=att)
+    tags = Tags.select().where(Tags.vk_id==post_id).dicts()
+    att = Attachments.select().where(Attachments.vk_id==post_id).dicts()
+
+    response = jsonify(dict(title=title, date=date, author=author, body=body, tags=[tag for tag in tags], att=[at for at in att]))
+    response.headers.set('Content-Type', 'application/json')
+    response.headers.set('Access-Control-Allow-Origin', '*')
+
+    return response
 
 @app.route('/tag/<tag>')
 def get_tag(tag):

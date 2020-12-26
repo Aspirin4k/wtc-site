@@ -19,7 +19,7 @@ module.exports = {
     },
     externals: [nodeExternals()],
     mode: 'development',
-    devtool: 'eval-source-map',
+    devtool: 'source-map',
     plugins: [
         new DefinePlugin({
             DEV: true

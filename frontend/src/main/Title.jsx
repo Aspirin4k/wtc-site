@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class Title extends Component {
     render() {
         const { title, isFirst, isLast } = this.props;
         const hasImage = !!title.url;
-        return <a href={`/post/${title.vk_id}`}>
+        return <Link className={'title'} to={`/post/${title.vk_id}`}>
             <div className={'title-post' + (isFirst ? ' title-post_first' : '') + (isLast ? ' title-post_last' : '')}>
                 {
                     hasImage &&
@@ -18,7 +19,7 @@ class Title extends Component {
                     <span className="title-post-info-shadow" />
                 </div>
             </div>
-        </a>
+        </Link>;
     }
 }
 

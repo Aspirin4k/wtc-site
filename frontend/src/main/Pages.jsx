@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 
 class Pages extends Component {
     render() {
@@ -6,11 +7,11 @@ class Pages extends Component {
 
         return <div>
             {
-                (new Array(pages_count)).fill(null).map((val, index) => {
+                (new Array(pages_count || 0)).fill(null).map((val, index) => {
                     return <span key={index} className="page-ref">
-                      <a href={`/page/${index}`}>
+                      <Link to={`/page/${index}`}>
                         {index + 1}
-                      </a>
+                      </Link>
                     </span>;
                 })
             }

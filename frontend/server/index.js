@@ -1,14 +1,15 @@
 import React from 'react';
+import axios from 'axios';
 import express from 'express';
 import favicon from 'serve-favicon';
 import fs from 'fs';
 import path from 'path';
 import { Proxy } from 'axios-express-proxy';
+import { StaticRouter } from 'react-router-dom';
 import { renderToString } from 'react-dom/server';
 
 import config from '../config/env.json';
 import { App } from '../src/App';
-import { request } from './api';
 
 const app = express();
 const port = config.port;
@@ -39,20 +40,46 @@ if (DEV) {
     );
 }
 
-let manifest = null;
-app.get(['/', '/page/:num'], (req, res) => {
-    return request( req.params.num || 0).then((response) => {
-        if (null === manifest) {
-            manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'static/manifest.json')));
-        }
+const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'static/manifest.json')));
+const axiosInstance = axios.create({
+    baseURL: config.api
+});
+app.get(['/', '/page/:num', '/post/:num'], (req, res) => {
 
-        const { data } = response;
-        const { titles, titles_count } = data;
-        const content = renderToString(<App payload={data} />);
-        return res.render('index', {content, titles, titles_count, manifest});
-    }).catch((error) => {
-        return res.send(error);
-    })
+    const routerContext = {};
+    const fetches = [];
+    renderToString(
+        <StaticRouter
+            location={req.url}
+            context={routerContext}
+        >
+            <App axios={axiosInstance} saveFetch={(fetch) => {fetches.push(fetch)}} />
+        </StaticRouter>
+    );
+
+    if (routerContext.url) {
+        return res.redirect(301, routerContext.url);
+    }
+
+    Promise.all(fetches.map(fetch => fetch())).then(
+        (responses) => {
+            const fetch_results = responses.reduce((acc, response) => {
+                acc[response.config.url] = response.data;
+                return acc;
+            }, {});
+
+            const content = renderToString(
+                <StaticRouter
+                    location={req.url}
+                    context={routerContext}
+                >
+                    <App axios={axiosInstance} fetch_results={fetch_results} />
+                </StaticRouter>
+            );
+
+            return res.render('index', {content, cache: fetch_results, manifest});
+        }
+    )
 });
 app.get('*', (req, res) => {
     return Proxy(config.api + req.url, req, res);

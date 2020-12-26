@@ -13,7 +13,7 @@
 <body>
 <div id="application"><%- content %></div>
 <script>
-    var serverPayload = {titles: <%- JSON.stringify(titles) %>, titles_count: <%- JSON.stringify(titles_count)%> };
+    window.cache = <%- JSON.stringify(cache) %>
 </script>
 <script type="text/javascript" src="<%= manifest['main.js'] %>"></script>
 </body>
