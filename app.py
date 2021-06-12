@@ -1,7 +1,8 @@
-from flask import Flask, render_template, make_response, request
+from flask import Flask, render_template, make_response, request, jsonify
 from urllib.parse import urljoin
 from feedgen.feed import FeedGenerator
 from peewee import *
+from playhouse.shortcuts import model_to_dict
 from db import *
 from datetime import datetime
 import pytz
@@ -18,11 +19,27 @@ def index():
 
 @app.route('/page/<int:page>')
 def pager(page):
-    titles = Post.select()
-    displayed_titles = Post.select().limit(30).offset(page*30)
-    return render_template('index.html',
-                           number_of_pages=ceil(len(titles)/30),
-                           displayed_titles=displayed_titles)
+    pageSize = 15
+
+    titles_count = Post.select().count()
+
+    first_attachment = (Attachments
+                       .select(Attachments.vk_id, Attachments.url)
+                       .group_by(Attachments.vk_id)
+                       .alias('first_attachment'))
+    join_predicate = (first_attachment.c.vk_id == Post.vk_id)
+    displayed_titles = (Post
+                        .select(Post, first_attachment.c.url.alias('url'))
+                        .join(first_attachment, JOIN.LEFT_OUTER, on=join_predicate)
+                        .limit(pageSize)
+                        .offset(page*pageSize)
+                        .namedtuples()
+                        .dicts())
+
+    response = jsonify(dict(pages_count=ceil(titles_count/pageSize), titles=[displayed_title for displayed_title in displayed_titles]))
+    response.headers.set('Content-Type', 'application/json')
+    response.headers.set('Access-Control-Allow-Origin', '*')
+    return response
 
 @app.route('/feed.xml')
 def rss():
@@ -75,15 +92,14 @@ def get_post(post_id):
             .utcfromtimestamp(query.date)
             .strftime('%Y-%m-%d %H:%M:%S'))
     author = authorizify(query.owner_id)
-    tags = Tags.select().where(Tags.vk_id==post_id)
-    att = Attachments.select().where(Attachments.vk_id==post_id)
-    return render_template('post.html',
-                           title=title,
-                           date=date,
-                           author=author,
-                           body=body,
-                           tags=tags,
-                           att=att)
+    tags = Tags.select().where(Tags.vk_id==post_id).dicts()
+    att = Attachments.select().where(Attachments.vk_id==post_id).dicts()
+
+    response = jsonify(dict(title=title, date=date, author=author, body=body, tags=[tag for tag in tags], att=[at for at in att]))
+    response.headers.set('Content-Type', 'application/json')
+    response.headers.set('Access-Control-Allow-Origin', '*')
+
+    return response
 
 @app.route('/tag/<tag>')
 def get_tag(tag):
@@ -97,5 +113,6 @@ def get_tag(tag):
 SELECT tags.vk_id, post.title
 FROM tags
 inner join post on tags.vk_id = post.vk_id
+left join (SELECT a.vk_id, a.url FROM attachments a GROUP BY a.vk_id) on a.vk_id = post.vk_id
 where tags.name = "#Higurashi "
 '''
